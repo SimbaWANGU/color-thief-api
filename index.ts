@@ -3,6 +3,7 @@ import type { Request, Response } from 'express'
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const { getColorFromURL, getPaletteFromURL } = require('@delirius/color-thief-node')
 require('dotenv').config()
 
 const app = express()
@@ -13,11 +14,34 @@ app.use(cors())
 app.use(bodyParser.urlencoded({
   extended: true
 }))
+app.use(bodyParser.json())
 
 // *Routes
-app.use('/', (req: Request, res: Response) => {
+app.post('/color', async (req: Request, res: Response) => {
+  const url = req.body.url
+  if (!url) {
+    res.status(400).json({
+      error: 'URL is required'
+    })
+  }
+
+  const color = await getColorFromURL(url) as number[]
   res.json({
-    hello: 'Welcome to the app'
+    color
+  })
+})
+
+app.post('/palette', async (req: Request, res: Response) => {
+  const url = req.body.url
+  if (!url) {
+    res.status(400).json({
+      error: 'URL is required'
+    })
+  }
+
+  const palette = await getPaletteFromURL(url) as string[]
+  res.json({
+    palette
   })
 })
 
